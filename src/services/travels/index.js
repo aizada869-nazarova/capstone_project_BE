@@ -1,22 +1,14 @@
 import express from "express"
 import createHttpError from "http-errors"
 import NewTripModel from "./schema.js"
+import JWTAuthMiddleware from "../../auth/middlewares.js"
 
 const travelsRouter = express.Router()
 
- travelsRouter.get("/", async (req, res, next) => {
-  try { 
-      const newTrip = await NewTripModel.find()
-    res.send(newTrip)
+ 
 
-  } catch (error) {
-    console.log(error)
-    next(error)
-  }
-})
-
- travelsRouter.get("/:travelId", async (req, res, next) => {
-  try { const trip = await NewTripModel.findById(req.params.travelId)
+ travelsRouter.get("/:travelId", JWTAuthMiddleware, async (req, res, next) => {
+  try { const trip = await NewTripModel.findById(req.params.travelId).populate({ path: "userId" })
     if (trip) {
       res.send(trip)
     } else {
@@ -29,13 +21,33 @@ const travelsRouter = express.Router()
   }
 })
 
- travelsRouter.post("/", async (req, res, next) => {
+travelsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
+  try { 
+    
+    const userIdR = req.user._id
+    console.log("userIdR", userIdR)
+      const newTrip = await NewTripModel.find({userId: userIdR}).populate({ path: "userId"})
+   console.log("hello world", newTrip)
+      res.send(newTrip)
+
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+})
+
+ travelsRouter.post("/",  JWTAuthMiddleware, async (req, res, next) => {
   try {
     const newTrip = new NewTripModel(req.body)
-    const { _id } = await newTrip.save()
+    console.log(req.body)
+    
+    const {_id} = await newTrip.save()
+    console.log({_id})
 
     res.status(201).send({ _id })
+    
   } catch (error) {
+    console.log(error)
     next(error)
   }
 })

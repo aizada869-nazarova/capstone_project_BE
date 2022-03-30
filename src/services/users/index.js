@@ -12,17 +12,42 @@ import {
 
 const usersRouter = express.Router()
 
-usersRouter.post("/", async (req, res, next) => {
+usersRouter.post("/register", async (req, res, next) => {
   try {
-    const user = new UsersModel(req.body)
-    const { _id } = await user.save()
+    const newUser = new UsersModel(req.body)
+    
+    const { _id } = await newUser.save()
+   
 
-    res.status(201).send({ _id })
+    res.status(201).send(newUser)
   } catch (error) {
     next(error)
   }
 })
 
+usersRouter.post("/login", async (req, res, next) => {
+  try {
+    // 1. Obtain credentials from req.body
+    const { email, password } = req.body
+    console.log(req.body)
+
+    // 2. Verify credentials
+    const user = await UsersModel.checkCredentials(email, password)
+   
+    if (user) {
+      console.log(user)
+      // 3. If credentials are fine we are going to generate an access token and a refresh token and send them as a response
+      const { accessToken } = await JWTAuthenticate(user)
+      
+      res.send({ accessToken })
+    } else {
+      // 4. If they are not --> error (401)
+      next(createHttpError(401, "Credentials are not ok!"))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
 usersRouter.get(
   "/",
   // JWTAuthMiddleware,
@@ -145,28 +170,6 @@ usersRouter.delete(
   }
 )
 
-usersRouter.post("/login", async (req, res, next) => {
-  try {
-    // 1. Obtain credentials from req.body
-    const { email, password } = req.body
-    console.log(req.body)
-
-    // 2. Verify credentials
-    const user = await UsersModel.checkCredentials(email, password)
-
-    if (user) {
-      console.log(user)
-      // 3. If credentials are fine we are going to generate an access token and a refresh token and send them as a response
-      const { accessToken, refreshToken } = await JWTAuthenticate(user)
-      res.send({ accessToken, refreshToken })
-    } else {
-      // 4. If they are not --> error (401)
-      next(createHttpError(401, "Credentials are not ok!"))
-    }
-  } catch (error) {
-    next(error)
-  }
-})
 
 usersRouter.post("/refreshToken", async (req, res, next) => {
   try {

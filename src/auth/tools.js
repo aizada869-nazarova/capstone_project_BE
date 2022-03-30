@@ -3,17 +3,18 @@ import jwt from "jsonwebtoken"
 import UsersModel from "../services/users/schema.js"
 
 export const JWTAuthenticate = async user => {
+ 
   // 1. given the user, it generates two tokens: accessToken and refreshToken
   const accessToken = await generateJWTToken({ _id: user._id })
-  const refreshToken = await generateRefreshJWTToken({ _id: user._id })
-
-  // 2. refresh token should be saved in db
-  user.refreshToken = refreshToken
-
+  
+  // const refreshToken = await generateRefreshJWTToken({ _id: user._id })
+  // console.log(refreshToken, "RT")
+  // // 2. refresh token should be saved in db
+  // user.refreshToken = refreshToken
   await user.save() // remember that here user is a Mongoose Document therefore it has some special features like save method
-
+console.log(user.save())
   // 3. return both the tokens
-  return { accessToken, refreshToken }
+  return { accessToken }
 }
 
 const generateJWTToken = payload =>
@@ -21,7 +22,7 @@ const generateJWTToken = payload =>
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: "1d" },
+      { expiresIn: "1 week" },
       (err, token) => {
         if (err) reject(err)
         else resolve(token)

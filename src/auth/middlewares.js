@@ -25,6 +25,7 @@ import { verifyJWT } from "./tools.js"
       }
       next()
     } catch (error) {
+      console.log(error)
       // 5. In case of error thrown from jsonwebtoken library --> 401
       next(createHttpError(401, "Token not valid!"))
     }
