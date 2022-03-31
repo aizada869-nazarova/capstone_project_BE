@@ -89,4 +89,105 @@ travelsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   }
 )
 
+
+ travelsRouter.post("/:travelId", async (req, res, next)=>{
+  try {  const newItinerary = await new commentsModel(req.body) 
+    const { _id } = await  newItinerary.save()
+   
+  if ( newItinerary) {
+   
+    const addToInsert = { ... newItinerary.toObject()} 
+    console.log( addToInsert)
+
+    const modifiedTravel = await NewTripModel.findByIdAndUpdate(
+      req.params.travelId,
+      { $push: { comments:  addToInsert } }, 
+      { new: true } 
+    )
+    if (modifiedBlog) {
+      res.send(modifiedBlog)
+    } else {
+      next(createHttpError(404, `blog with id ${req.params.travelId} not found!`))
+    }
+  } else {
+    next(createHttpError(404, `Blog with id ${req.body.travelId} not found!`))
+  }
+  } catch (error) {
+    next(error)
+    
+  }
+})
+
+ travelsRouter.get("/:travelId/comments", async (req, res, next) => {
+  try {
+    console.log(req.params.travelId)
+    const blog = await NewTripModel.findById(req.params.travelId)
+    if (blog) {
+      res.send(blog.comments)
+    } else {
+      next(createHttpError(404, `blog with id ${req.params. travelId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+ travelsRouter.get("/:travelId/comments/:commentId", async (req, res, next) => {
+  try {
+    const blog = await NewTripModel.findById(req.params.travelId)
+    if (blog) {
+      const purchasedItem = blog.comments.find(book => book._id.toString() === req.params.commentId) // You CANNOT compare an ObjectId (book._id) with a string (req.params.commentId) --> book._id needs to be converted into a string
+      if (purchasedItem) {
+        res.send(purchasedItem)
+      } else {
+        next(createHttpError(404, `Book with id ${req.params.commentId} not found!`))
+      }
+    } else {
+      next(createHttpError(404, `blog with id ${req.params. travelId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+ travelsRouter.put("/:travelId/comments/:commentId", async (req, res, next) => {
+  try {
+    const blog = await NewTripModel.findById(req.params.travelId)
+    if (blog) {
+      const index = blog.comments.findIndex(book => book._id.toString() === req.params.commentId)
+
+      if (index !== -1) {
+       
+        blog.comments[index] = { ...blog.comments[index].toObject(), ...req.body } 
+        await blog.save() 
+        res.send(blog)
+      } else {
+        next(createHttpError(404, `comment with id ${req.params.commentId} not found!`))
+      }
+    } else {
+      next(createHttpError(404, `blog with id ${req.params. travelId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+ travelsRouter.delete("/:travelId/comments/:commentId", async (req, res, next) => {
+  try {
+    const modifiedblog = await NewTripModel.findByIdAndUpdate(
+      req.params.travelId, 
+      { $pull: { comments: { _id: req.params.commentId } } }, 
+      { new: true } 
+    )
+
+    if (modifiedblog) {
+      res.send(modifiedblog)
+    } else {
+      next(createHttpError(404, `blog with id ${req.params.travelId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
 export default  travelsRouter
