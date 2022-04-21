@@ -3,7 +3,7 @@ import mongoose from "mongoose"
 
 const { Schema, model } = mongoose
 
-const NewTripSchema = new Schema(
+const VisitedCountrySchema = new Schema(
   {
     from: { type: String, required: true },
     to: { type: String, required: true },
@@ -20,4 +20,4 @@ const NewTripSchema = new Schema(
   }
 )
 
-export default model("NewTrip", NewTripSchema)
+export default model("VisitedCountry", VisitedCountrySchema)

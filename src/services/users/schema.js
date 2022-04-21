@@ -5,8 +5,8 @@ const { Schema, model } = mongoose
 
 const UserSchema = new Schema(
   {
-    name: { type: String, required: true },
-    surname: { type: String, required: true },
+    userName: { type: String, required: true },
+    surname: { type: String, required: false},
     email: { type: String, required: true },
     password: { type: String, required: true },
     refreshToken: { type: String },

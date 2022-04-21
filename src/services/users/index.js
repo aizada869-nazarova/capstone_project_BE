@@ -21,6 +21,7 @@ usersRouter.post("/register", async (req, res, next) => {
 
     res.status(201).send(newUser)
   } catch (error) {
+    console.log(error)
     next(error)
   }
 })
@@ -45,6 +46,7 @@ usersRouter.post("/login", async (req, res, next) => {
       next(createHttpError(401, "Credentials are not ok!"))
     }
   } catch (error) {
+    console.log(error)
     next(error)
   }
 })
@@ -76,12 +78,22 @@ usersRouter.put("/me", JWTAuthMiddleware, async (req, res, next) => {
 })
 
 usersRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const token = req.headers.authorization;
+    if (!token) return res.send({ message: "No Token Provided!" });
+    
   const user = await UsersModel.findById(req.user._id)
   if (user) {
     res.send(user)
   } else {
     next(401, `User with id ${req.user._id} not found!`)
   }
+    
+  } catch (error) {
+    next(error)
+  }
+  
+  
 })
 
 usersRouter.delete("/me", JWTAuthMiddleware, async (req, res, next) => {

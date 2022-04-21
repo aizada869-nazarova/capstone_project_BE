@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import passport from "passport"
 import googleStrategy from "./auth/oauth.js";
 import usersRouter from "./services/users/index.js";
+import visitedCountryRouter from "./services/visitedCountries/index.js"
 
 import { errorMiddlewares } from "./errorMiddlewares.js"
 import travelsRouter from "./services/travels/index.js";
@@ -25,6 +26,7 @@ server.use(passport.initialize())
 server.use("/users", usersRouter)
 server.use("/travels", travelsRouter)
 server.use('/pakinglists', pakingListsRouter)
+server.use("/visitedCountry", visitedCountryRouter)
 // ****************** ERROR HANDLERS ***********************
 
 server.use([errorMiddlewares])
