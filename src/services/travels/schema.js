@@ -31,10 +31,7 @@ const NewTripSchema = new Schema(
     time: { type: String},
     travelWith: [{ type: String }],
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    pakingLists: [ {
-      nameOfList: { type: String, required: true },
-      category: { type: String, required: true, enum: ["other", "clothes"] }
-     }],  
+    pakingLists: { type: [PakingListsSchema], default: [] },  
     itineraries:{ type: [ItinerarySchema], default: [] }
   },
   {
