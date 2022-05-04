@@ -25,7 +25,6 @@ server.use(passport.initialize())
 
 server.use("/users", usersRouter)
 server.use("/travels", travelsRouter)
-server.use('/pakinglists', pakingListsRouter)
 server.use("/visitedCountry", visitedCountryRouter)
 // ****************** ERROR HANDLERS ***********************
 

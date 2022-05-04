@@ -25,9 +25,9 @@ travelsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try { 
     
     const userIdR = req.user._id
-    console.log("userIdR", userIdR)
+   
       const newTrip = await NewTripModel.find({userId: userIdR}).populate({ path: "userId"})
-   console.log("hello world", newTrip)
+  
       res.send(newTrip)
 
   } catch (error) {
@@ -48,11 +48,11 @@ travelsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
     
   } catch (error) {
     console.log(error)
-    next(error)
+    next(error, console.log(error))
   }
 })
 
- travelsRouter.put("/:travelId", async (req, res, next) => {
+ travelsRouter.put("/:travelId", JWTAuthMiddleware, async (req, res, next) => {
   try { 
       const id=req.params.travelId
     if (id.length !== 24)
@@ -89,101 +89,191 @@ travelsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   }
 )
 
+// ----itinerary endpoints---
 
- travelsRouter.post("/:travelId", async (req, res, next)=>{
-  try {  const newItinerary = await new commentsModel(req.body) 
-    const { _id } = await  newItinerary.save()
+ travelsRouter.post("/:travelId/itinerary",JWTAuthMiddleware, async (req, res, next)=>{
+  try {  
    
-  if ( newItinerary) {
-   
-    const addToInsert = { ... newItinerary.toObject()} 
-    console.log( addToInsert)
-
+  
     const modifiedTravel = await NewTripModel.findByIdAndUpdate(
       req.params.travelId,
-      { $push: { comments:  addToInsert } }, 
+      { $push: {  itineraries:  req.body } }, 
       { new: true } 
     )
-    if (modifiedBlog) {
-      res.send(modifiedBlog)
+    if (modifiedTravel) {
+      res.send(modifiedTravel)
     } else {
-      next(createHttpError(404, `blog with id ${req.params.travelId} not found!`))
+      next(createHttpError(404, `trip with id ${req.params.travelId} not found!`))
     }
-  } else {
-    next(createHttpError(404, `Blog with id ${req.body.travelId} not found!`))
-  }
+  
   } catch (error) {
-    next(error)
+    console.log(error)
+    next(error, console.log(error))
     
   }
 })
 
- travelsRouter.get("/:travelId/comments", async (req, res, next) => {
+ travelsRouter.get("/:travelId/itinerary", JWTAuthMiddleware, async (req, res, next) => {
   try {
     console.log(req.params.travelId)
-    const blog = await NewTripModel.findById(req.params.travelId)
-    if (blog) {
-      res.send(blog.comments)
+    const trip= await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      res.send(trip.itineraries)
     } else {
-      next(createHttpError(404, `blog with id ${req.params. travelId} not found!`))
+      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
     }
   } catch (error) {
     next(error)
   }
 })
 
- travelsRouter.get("/:travelId/comments/:commentId", async (req, res, next) => {
+ travelsRouter.get("/:travelId/itinerary/:itineraryId", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const blog = await NewTripModel.findById(req.params.travelId)
-    if (blog) {
-      const purchasedItem = blog.comments.find(book => book._id.toString() === req.params.commentId) // You CANNOT compare an ObjectId (book._id) with a string (req.params.commentId) --> book._id needs to be converted into a string
-      if (purchasedItem) {
-        res.send(purchasedItem)
+    const trip = await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      const singleItinerary= trip.itineraries.find(single => single._id.toString() === req.params.itineraryId) 
+      if ( singleItinerary) {
+        res.send(  singleItinerary)
       } else {
-        next(createHttpError(404, `Book with id ${req.params.commentId} not found!`))
+        next(createHttpError(404, `itinerary with id ${req.params.itineraryId} not found!`))
       }
     } else {
-      next(createHttpError(404, `blog with id ${req.params. travelId} not found!`))
+      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
     }
   } catch (error) {
-    next(error)
+    next(error, console.log(error))
   }
 })
 
- travelsRouter.put("/:travelId/comments/:commentId", async (req, res, next) => {
+ travelsRouter.put("/:travelId/itinerary/:itineraryId", async (req, res, next) => {
   try {
-    const blog = await NewTripModel.findById(req.params.travelId)
-    if (blog) {
-      const index = blog.comments.findIndex(book => book._id.toString() === req.params.commentId)
+    const trip = await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      const index = trip.itineraries.findIndex(singleIt => singleIt._id.toString() === req.params.itineraryIdId)
 
       if (index !== -1) {
        
-        blog.comments[index] = { ...blog.comments[index].toObject(), ...req.body } 
-        await blog.save() 
-        res.send(blog)
+        trip.itineraries[index] = { ...trip.itineraries[index].toObject(), ...req.body } 
+        await trip.save() 
+        res.send(trip)
       } else {
-        next(createHttpError(404, `comment with id ${req.params.commentId} not found!`))
+        next(createHttpError(404, `itinerary with id ${req.params.itineraryId} not found!`))
       }
     } else {
-      next(createHttpError(404, `blog with id ${req.params. travelId} not found!`))
+      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
     }
   } catch (error) {
     next(error)
   }
 })
 
- travelsRouter.delete("/:travelId/comments/:commentId", async (req, res, next) => {
+ travelsRouter.delete("/:travelId/itinerary/:itineraryId", async (req, res, next) => {
   try {
-    const modifiedblog = await NewTripModel.findByIdAndUpdate(
+    const modifiedtrip = await NewTripModel.findByIdAndUpdate(
       req.params.travelId, 
-      { $pull: { comments: { _id: req.params.commentId } } }, 
+      { $pull: { itineraries: { _id: req.params.itineraryId } } }, 
       { new: true } 
     )
 
-    if (modifiedblog) {
-      res.send(modifiedblog)
+    if (modifiedtrip) {
+      res.status(204).send()
     } else {
-      next(createHttpError(404, `blog with id ${req.params.travelId} not found!`))
+      next(createHttpError(404, `trip with id ${req.params.travelId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+// ----pakinglists endpoints---
+travelsRouter.post("/:travelId/pakinglist",JWTAuthMiddleware, async (req, res, next)=>{
+  try {  
+   
+  
+    const modifiedTravel = await NewTripModel.findByIdAndUpdate(
+      req.params.travelId,
+      { $push: {  pakingLists: req.body } }, 
+      { new: true } 
+    )
+    if (modifiedTravel) {
+      res.send(modifiedTravel)
+    } else {
+      next(createHttpError(404, `trip with id ${req.params.travelId} not found!`))
+    }
+  
+  } catch (error) {
+    console.log(error)
+    next(error, console.log(error))
+    
+  }
+})
+
+ travelsRouter.get("/:travelId/pakinglist", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    console.log(req.params.travelId)
+    const trip= await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      res.send(trip.pakingLists)
+    } else {
+      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+ travelsRouter.get("/:travelId/pakinglist/:pakinglistId", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const trip = await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      const singlePakinglist= trip.pakingLists.find(single => single._id.toString() === req.params.pakinglistId) 
+      if ( singlePakinglist) {
+        res.send( singlePakinglist)
+      } else {
+        next(createHttpError(404, `pakinglist with id ${req.params. pakinglistId} not found!`))
+      }
+    } else {
+      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
+    }
+  } catch (error) {
+    next(error, console.log(error))
+  }
+})
+
+ travelsRouter.put("/:travelId/pakinglist/:pakinglistId", async (req, res, next) => {
+  try {
+    const trip = await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      const index = trip.pakingLists.findIndex(singlePar => singlePar._id.toString() === req.params.pakinglistId)
+
+      if (index !== -1) {
+       
+        trip.pakingLists[index] = { ...trip.pakingLists[index].toObject(), ...req.body } 
+        await trip.save() 
+        res.send(trip)
+      } else {
+        next(createHttpError(404, `pakinglist with id ${req.params.pakinglistId} not found!`))
+      }
+    } else {
+      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
+    }
+  } catch (error) {
+    next(error, console.log(error))
+  }
+})
+
+ travelsRouter.delete("/:travelId/pakinglist/:pakinglistId", async (req, res, next) => {
+  try {
+    const modifiedtrip = await NewTripModel.findByIdAndUpdate(
+      req.params.travelId, 
+      { $pull: { pakingLists: { _id: req.params.pakinglistId } } }, 
+      { new: true } 
+    )
+
+    if (modifiedtrip) {
+      res.status(204).send()
+    } else {
+      next(createHttpError(404, `trip with id ${req.params.travelId} not found!`))
     }
   } catch (error) {
     next(error)
