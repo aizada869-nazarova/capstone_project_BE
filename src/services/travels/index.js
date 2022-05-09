@@ -26,7 +26,7 @@ travelsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
     
     const userIdR = req.user._id
    
-      const newTrip = await NewTripModel.find({userId: userIdR}).populate({ path: "userId"})
+      const newTrip = await NewTripModel.find({userId: userIdR}).populate({ path: "userId", select: "_id userName"})
   
       res.send(newTrip)
 
@@ -233,7 +233,7 @@ travelsRouter.post("/:travelId/pakinglist",JWTAuthMiddleware, async (req, res, n
         next(createHttpError(404, `pakinglist with id ${req.params. pakinglistId} not found!`))
       }
     } else {
-      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
+      next(createHttpError(404, `trip with id ${req.params.travelId} not found!`))
     }
   } catch (error) {
     next(error, console.log(error))
@@ -267,6 +267,101 @@ travelsRouter.post("/:travelId/pakinglist",JWTAuthMiddleware, async (req, res, n
     const modifiedtrip = await NewTripModel.findByIdAndUpdate(
       req.params.travelId, 
       { $pull: { pakingLists: { _id: req.params.pakinglistId } } }, 
+      { new: true } 
+    )
+
+    if (modifiedtrip) {
+      res.status(204).send()
+    } else {
+      next(createHttpError(404, `trip with id ${req.params.travelId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+// ----accommodation endpoints----
+travelsRouter.post("/:travelId/accommodation",JWTAuthMiddleware, async (req, res, next)=>{
+  try {  
+   
+  
+    const modifiedTravel = await NewTripModel.findByIdAndUpdate(
+      req.params.travelId,
+      { $push: {   accommodations: req.body } }, 
+      { new: true } 
+    )
+    if (modifiedTravel) {
+      res.send(modifiedTravel)
+    } else {
+      next(createHttpError(404, `trip with id ${req.params.travelId} not found!`))
+    }
+  
+  } catch (error) {
+    console.log(error)
+    next(error, console.log(error))
+    
+  }
+})
+
+ travelsRouter.get("/:travelId/accommodation", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    console.log(req.params.travelId)
+    const trip= await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      res.send(trip. accommodations)
+    } else {
+      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+ travelsRouter.get("/:travelId/accommodation/:accommodationId", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const trip = await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      const singleAccommodation= trip. accommodations.find(single => single._id.toString() === req.params.accommodationId) 
+      if ( singleAccommodation) {
+        res.send( singleAccommodation)
+      } else {
+        next(createHttpError(404, `accommodation with id ${req.params.accommodationId} not found!`))
+      }
+    } else {
+      next(createHttpError(404, `trip with id ${req.params.travelId} not found!`))
+    }
+  } catch (error) {
+    next(error, console.log(error))
+  }
+})
+
+ travelsRouter.put("/:travelId/accommodation/:accommodationId", async (req, res, next) => {
+  try {
+    const trip = await NewTripModel.findById(req.params.travelId)
+    if (trip) {
+      const index = trip.accommodations.findIndex(singlePar => singlePar._id.toString() === req.params.accommodationId)
+
+      if (index !== -1) {
+       
+        trip.accommodations[index] = { ...trip.accommodations[index].toObject(), ...req.body } 
+        await trip.save() 
+        res.send(trip)
+      } else {
+        next(createHttpError(404, `accommodation with id ${req.params.accommodationId} not found!`))
+      }
+    } else {
+      next(createHttpError(404, `trip with id ${req.params. travelId} not found!`))
+    }
+  } catch (error) {
+    next(error, console.log(error))
+  }
+})
+
+ travelsRouter.delete("/:travelId/accommodation/:accommodationId", async (req, res, next) => {
+  try {
+    const modifiedtrip = await NewTripModel.findByIdAndUpdate(
+      req.params.travelId, 
+      { $pull: { accommodations: { _id: req.params.accommodationId } } }, 
       { new: true } 
     )
 
