@@ -10,6 +10,7 @@ import visitedCountryRouter from "./services/visitedCountries/index.js"
 import { errorMiddlewares } from "./errorMiddlewares.js"
 import travelsRouter from "./services/travels/index.js";
 import pakingListsRouter from "./services/pakingLists/index.js";
+import itineraryRouter from "./services/itineraries/index.js";
 
 const server = express();
 const port = process.env.PORT || 3001
@@ -26,6 +27,7 @@ server.use(passport.initialize())
 server.use("/users", usersRouter)
 server.use("/travels", travelsRouter)
 server.use("/visitedCountry", visitedCountryRouter)
+server.use("/itinerary", itineraryRouter)
 // ****************** ERROR HANDLERS ***********************
 
 server.use([errorMiddlewares])
