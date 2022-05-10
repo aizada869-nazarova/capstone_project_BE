@@ -5,6 +5,24 @@ import JWTAuthMiddleware from "../../auth/middlewares.js";
 
 const itineraryRouter = express.Router();
 
+
+
+itineraryRouter.get("/:travelId", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const itineraryIdRef = req.params.travelId;
+    console.log(itineraryIdRef);
+
+    const newItinerary = await ItineraryModel.find({travelId: itineraryIdRef }).populate(
+      {path: "travelId", select: "_id"}
+    );
+    // { path: "travelId", select: "_id" }
+    res.send(newItinerary);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
 itineraryRouter.get(
   "/:itineraryId",
   JWTAuthMiddleware,
@@ -28,22 +46,6 @@ itineraryRouter.get(
     }
   }
 );
-
-itineraryRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
-  try {
-    const itineraryIdRef = req.params.travelId;
-    console.log(itineraryIdRef);
-
-    const newItinerary = await ItineraryModel.find({ itineraryIdRef }).populate(
-      { path: "travelId", select: "_id" }
-    );
-
-    res.send(newItinerary);
-  } catch (error) {
-    console.log(error);
-    next(error);
-  }
-});
 
 itineraryRouter.post("/", JWTAuthMiddleware, async (req, res, next) => {
   try {

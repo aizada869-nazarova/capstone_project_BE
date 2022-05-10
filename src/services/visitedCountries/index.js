@@ -9,23 +9,8 @@ import JWTAuthMiddleware from "../../auth/middlewares.js";
 
 const visitedCountryRouter = express.Router({ mergeParams: true });
 
-//cloudinary config
-const { CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_SECRET } = process.env;
 
-cloudinary.config({
-  cloud_name: CLOUDINARY_NAME,
-  api_key: CLOUDINARY_API_KEY,
-  api_secret: CLOUDINARY_SECRET,
-});
-
-const cloudinaryStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "nft-products-mongo",
-  },
-});
-
-const parser = multer({ storage: cloudinaryStorage });
+;
 
 visitedCountryRouter.get(
   "/:visitedCountryId",
@@ -117,5 +102,56 @@ visitedCountryRouter.delete("/:visitedCountryId", async (req, res, next) => {
     next(error);
   }
 });
+
+
+//cloudinary config
+const { CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_SECRET, CLOUDINARY_URL } = process.env;
+
+cloudinary.config({
+  cloud_name: CLOUDINARY_NAME,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_SECRET,
+  api_url: CLOUDINARY_URL
+});
+
+const cloudStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder:"experience-image",
+  },
+});
+const posterUploader = multer({ storage: cloudStorage }).single("exp-image")
+
+
+
+
+visitedCountryRouter.post(
+  "/:visitedCountryId/uploadPictures",
+  posterUploader,
+  async (req, res, next) => {
+    try {
+      const user=req.file
+      console.log(user)
+      const visitedCountryId = req.params.visitedCountryId;
+      console.log(visitedCountryId)
+      const updatedCountry = await VisitedCountryModel.findByIdAndUpdate(
+        visitedCountryId,
+        
+        { $set: { image: req.file?.path } },
+        {
+          new: true,
+        },
+        
+      );
+      if (updatedCountry) {
+        res.send(updatedCountry);
+      } else {
+        next(createHttpError(404, `vountry with id ${visitedCountryId} not found!`));
+      }
+    } catch (error) {
+      next(error, console.log(error));
+    }
+  }
+);
 
 export default visitedCountryRouter

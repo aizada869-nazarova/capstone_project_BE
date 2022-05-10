@@ -11,7 +11,12 @@ const VisitedCountrySchema = new Schema(
     date: { type: Date },
     duration: { type: Date },
     
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true }
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    image: {
+      type: String,
+    
+      
+    }
    
   },
   {
