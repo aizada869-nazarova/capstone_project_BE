@@ -22,8 +22,6 @@ const PakingListsSchema = new Schema(
   { timestamps: true }
 );
 
-
-
 const NewTripSchema = new Schema(
   {
     fromCityName: { type: String, required: true },
@@ -43,11 +41,11 @@ const NewTripSchema = new Schema(
         placeToStay: { type: String, required: true },
         address: { type: String },
         checkIn: { type: Date },
-        checkInTime: { type: Number },
+        checkInTime: { type: String },
         checkOut: { type: Date },
-        checkOutTime: { type: Number },
-        contact: { type: Number },
-        websiteUrl: {type: String}
+        checkOutTime: { type: String },
+        contact: { type: String },
+        websiteUrl: { type: String },
       },
     ],
   },

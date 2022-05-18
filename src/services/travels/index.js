@@ -347,7 +347,7 @@ travelsRouter.get(
   JWTAuthMiddleware,
   async (req, res, next) => {
     try {
-      console.log(req.params.travelId);
+      // console.log(req.params.travelId);
       const trip = await NewTripModel.findById(req.params.travelId);
       if (trip) {
         res.send(trip.accommodations);
@@ -447,7 +447,7 @@ travelsRouter.delete(
         );
       }
     } catch (error) {
-      next(error);
+      next(error, console.log(error));
     }
   }
 );
