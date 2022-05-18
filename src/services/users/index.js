@@ -197,18 +197,4 @@ usersRouter.post("/refreshToken", async (req, res, next) => {
   }
 });
 
-/* FE EXAMPLE
-
-await fetch("/certainResource", {headers: {Authorization: accessToken}})
-
-if(401) {
-  const {newAccessToken, newRefreshToken }= await fetch("/users/refreshToken", {method: "POST", body: {currentRefreshToken}})
-  localStorage.setItem("accessToken", newAccessToken)
-  localStorage.setItem("refreshToken", newRefreshToken)
-
-  await fetch("/certainResource", {headers: {Authorization: newAccessToken}})
-}
-
-*/
-
 export default usersRouter;
