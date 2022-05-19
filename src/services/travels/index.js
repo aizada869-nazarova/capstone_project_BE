@@ -26,7 +26,10 @@ travelsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const userIdR = req.user._id;
 
-    const newTrip = await NewTripModel.find({ userId: userIdR }).populate({
+    const newTrip = await NewTripModel.find({
+      userId: userIdR,
+      $sort: { departureDate: 1 },
+    }).populate({
       path: "userId",
       select: "_id userName",
     });
