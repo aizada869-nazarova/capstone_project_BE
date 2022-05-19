@@ -44,7 +44,7 @@ const NewTripSchema = new Schema(
         checkInTime: { type: String },
         checkOut: { type: Date },
         checkOutTime: { type: String },
-        contact: { type: String },
+        contact: { type: Number },
         websiteUrl: { type: String },
       },
     ],
